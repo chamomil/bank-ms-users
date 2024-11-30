@@ -1,0 +1,465 @@
+openapi: 3.0.1
+info:
+  title: Sample API
+  description: API description in Markdown.
+  version: 1.0.0
+servers:
+  - url: 'https://x-bank.alsiberij.com/ms-users/'
+  - url: 'http://localhost:8080/'
+paths:
+  /v1/me:
+    get:
+      summary: Получить пользовательские данные
+      tags:
+        - User data
+      security:
+        - bearerAuth: [ ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataResponse'
+        400:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/me/personal-data:
+    get:
+      summary: Получить персональные данные
+      tags:
+        - User data
+      security:
+        - bearerAuth: [ ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  personalData:
+                    $ref: '#/components/schemas/PersonalDataResponse'
+        400:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/me/auth-history:
+    get:
+      summary: Получить историю входов в аккаунт
+      tags:
+        - User data
+      security:
+        - bearerAuth: [ ]
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    $ref: '#/components/schemas/AuthHistoryResponse'
+        400:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/auth/sign-up:
+    post:
+      summary: Регистрация пользователя в системе
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: Эл. почта
+                login:
+                  type: string
+                  description: Логин
+                password:
+                  type: string
+                  description: Пароль
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/auth/verification:
+    post:
+      summary: Активация аккаунт по коду из email
+      tags:
+        - Auth
+      parameters:
+        - in: query
+          name: code
+          schema:
+            type: string
+          description: Код активации
+          required: true
+      responses:
+        '200':
+          description: Ok
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/auth/sign-in:
+    post:
+      summary: Вход в систему
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                  description: Логин
+                password:
+                  type: string
+                  description: Пароль
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignInResponse'
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/auth/sign-in/2fa:
+    post:
+      summary: Проверка второго фактора
+      tags:
+        - Auth
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: Код второго фактора
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tokens:
+                    $ref: '#/components/schemas/TokenPair'
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/auth/recovery:
+    post:
+      summary: Отправка кода для восстановления пароля
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                login:
+                  type: string
+                  description: Логин
+                email:
+                  type: string
+                  description: Эл. Почта
+      responses:
+        '200':
+          description: Ok
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/auth/recovery/{code}:
+    post:
+      summary: Восстановление пароля
+      parameters:
+        - in: path
+          name: code
+          description: Код отправленный на почту
+          schema:
+            type: string
+          required: true
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  description: Логин
+      responses:
+        '200':
+          description: Ok
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/auth/refresh:
+    post:
+      summary: Получение новой пары токенов по рефреш токену
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+                  description: Рефреш токен
+      responses:
+        '200':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tokens:
+                    $ref: '#/components/schemas/TokenPair'
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /v1/telegram:
+    post:
+      summary: Привязка телеграмма к пользователю
+      tags:
+        - Telegram
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkTelegramRequest'
+      responses:
+        '200':
+          description: Ok
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Отвязка телеграмма от пользователя
+      tags:
+        - Telegram
+      responses:
+        '204':
+          description: No content
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        internalCode:
+          type: string
+          description: Внутренний код ошибки
+        devMessage:
+          type: string
+          description: Сообщение для разработчика
+        userMessage:
+          type: string
+          description: Сообщение для пользователя
+
+    TokenPair:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: Access token
+        refreshToken:
+          type: string
+          description: Refresh token
+
+    SignInResponse:
+      type: object
+      properties:
+        2faToken:
+          type: string
+          description: Токен для вызова запроса проверки второго фактора
+        tokens:
+          $ref: '#/components/schemas/TokenPair'
+
+    LinkTelegramRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstname:
+          type: string
+        lastname:
+          type: string
+        username:
+          type: string
+        photoUrl:
+          type: string
+        authDate:
+          type: integer
+        hash:
+          type: string
+      required:
+        - id
+        - firstname
+        - lastname
+        - username
+        - photoUrl
+        - authDate
+        - hash
+
+    PersonalDataResponse:
+      type: object
+      nullable: true
+      properties:
+        phoneNumber:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        fathersName:
+          type: string
+          nullable: true
+          example: null
+        dateOfBirth:
+          type: string
+        passportId:
+          type: string
+        address:
+          type: string
+        gender:
+          type: string
+        liveInCountry:
+          type: string
+      required:
+        - phoneNumber
+        - firstName
+        - lastName
+        - fathersName
+        - dateOfBirth
+        - passportId
+        - address
+        - gender
+        - liveInCountry
+      example: null
+
+    UserDataResponse:
+      type: object
+      nullable: true
+      properties:
+        id:
+          type: integer
+        uuid:
+          type: string
+        login:
+          type: string
+        email:
+          type: string
+        telegramId:
+          type: integer
+          nullable: true
+          example: null
+        createdAt:
+          type: string
+          example: 14.09.2001
+      required:
+        - id
+        - uuid
+        - login
+        - email
+        - telegramId
+        - createdAt
+
+    AuthHistoryResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+          agent:
+            type: string
+            example: "PostmanRuntime/7.37.3"
+          ip:
+            type: string
+            example: "198.51.100.17"
+          timestamp:
+            type: string
+            example: "2024.06.27 17:42:41"
+        required:
+          - id
+          - agent
+          - ip
+          - timestamp
