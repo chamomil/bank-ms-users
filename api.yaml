@@ -4,7 +4,6 @@ info:
   description: API description in Markdown.
   version: 1.0.0
 servers:
-  - url: 'https://x-bank.alsiberij.com/ms-users/'
   - url: 'http://localhost:8080/'
 paths:
   /v1/me:
@@ -103,28 +102,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /v1/auth/verification:
-    post:
-      summary: Активация аккаунт по коду из email
-      tags:
-        - Auth
-      parameters:
-        - in: query
-          name: code
-          schema:
-            type: string
-          description: Код активации
-          required: true
-      responses:
-        '200':
-          description: Ok
-        '400':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
   /v1/auth/sign-in:
     post:
       summary: Вход в систему
@@ -182,64 +159,6 @@ paths:
                 properties:
                   tokens:
                     $ref: '#/components/schemas/TokenPair'
-        '400':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /v1/auth/recovery:
-    post:
-      summary: Отправка кода для восстановления пароля
-      tags:
-        - Auth
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                login:
-                  type: string
-                  description: Логин
-                email:
-                  type: string
-                  description: Эл. Почта
-      responses:
-        '200':
-          description: Ok
-        '400':
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /v1/auth/recovery/{code}:
-    post:
-      summary: Восстановление пароля
-      parameters:
-        - in: path
-          name: code
-          description: Код отправленный на почту
-          schema:
-            type: string
-          required: true
-      tags:
-        - Auth
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                password:
-                  type: string
-                  description: Логин
-      responses:
-        '200':
-          description: Ok
         '400':
           description: Error
           content:

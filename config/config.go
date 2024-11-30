@@ -10,20 +10,9 @@ type (
 		Hs512SecretKey  string   `json:"hs512SecretKey"`
 		Rs256PrivateKey string   `json:"rs256PrivateKey"`
 		Rs256PublicKey  string   `json:"rs256PublicKey"`
-		Gmail           Gmail    `json:"gmail"`
 		Redis           Redis    `json:"redis"`
 		Postgres        Postgres `json:"postgres"`
 		Telegram        Telegram `json:"telegram"`
-	}
-
-	Gmail struct {
-		Host          string `json:"host"`
-		SenderName    string `json:"senderName"`
-		SenderEmail   string `json:"senderEmail"`
-		Login         string `json:"login"`
-		Password      string `json:"password"`
-		UrlToActivate string `json:"urlToActivate"`
-		UrlToRestore  string `json:"urlToRestore"`
 	}
 
 	Redis struct {

@@ -70,28 +70,15 @@ const (
 )
 
 func (s *Service) SignUp(ctx context.Context, login, password, email string) error {
-	activationCode, err := s.randomGenerator.GenerateString(ctx, emailCodeCharset, emailCodeLength)
-
-	if err != nil {
-		return err
-	}
-
 	hash, err := s.passwordHasher.HashPassword(ctx, []byte(password), hashCost)
 	if err != nil {
 		return err
 	}
 
-	userId, err := s.userStorage.CreateUser(ctx, login, email, hash)
+	_, err = s.userStorage.CreateUser(ctx, login, email, hash)
 	if err != nil {
 		return err
 	}
-
-	err = s.activationCodeCache.SaveActivationCode(ctx, activationCode, userId, emailCodeTtl)
-	if err != nil {
-		return err
-	}
-
-	err = s.authNotifier.SendActivationCode(ctx, email, activationCode)
 	return err
 }
 
