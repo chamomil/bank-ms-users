@@ -10,7 +10,6 @@ type (
 		CreateUser(ctx context.Context, login, email string, passwordHash []byte) (int64, error)
 		GetSignInDataByLogin(ctx context.Context, login string) (UserDataToSignIn, error)
 		GetSignInDataById(ctx context.Context, id int64) (UserDataToSignIn, error)
-		ActivateUser(ctx context.Context, userId int64) error
 		UserIdByLoginAndEmail(ctx context.Context, login, email string) (int64, error)
 		UpdatePassword(ctx context.Context, id int64, passwordHash []byte) error
 		UpdateTelegramId(ctx context.Context, telegramId *int64, userId int64) error

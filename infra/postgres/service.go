@@ -123,22 +123,6 @@ func (s *Service) GetSignInDataById(ctx context.Context, id int64) (web.UserData
 	return userData, nil
 }
 
-func (s *Service) ActivateUser(ctx context.Context, userId int64) error {
-	const query = `UPDATE users SET "isActivated" = true WHERE id = @id`
-
-	_, err := s.db.ExecContext(ctx, query,
-		pgx.NamedArgs{
-			"id": userId,
-		},
-	)
-
-	if err != nil {
-		return s.wrapQueryError(err)
-	}
-
-	return nil
-}
-
 func (s *Service) UserIdByLoginAndEmail(ctx context.Context, login, email string) (int64, error) {
 	const query = `SELECT id FROM users WHERE login = @login AND email = @email`
 
@@ -217,7 +201,7 @@ func (s *Service) GetUserPersonalDataById(ctx context.Context, userId int64) (*w
 }
 
 func (s *Service) DeleteUsersWithExpiredActivation(ctx context.Context, expirationTime time.Duration) error {
-	_, err := s.db.ExecContext(ctx, `DELETE FROM users WHERE "isActivated" = false AND "createdAt" < $1`, time.Now().Add(-expirationTime))
+	_, err := s.db.ExecContext(ctx, `DELETE FROM users WHERE "createdAt" < $1`, time.Now().Add(-expirationTime))
 
 	if err != nil {
 		return s.wrapQueryError(err)

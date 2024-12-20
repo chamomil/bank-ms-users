@@ -220,7 +220,7 @@ func (t *Transport) handlerGetUserData(w http.ResponseWriter, r *http.Request) {
 		CreatedAt:  data.CreatedAt.Format("2006-01-02"),
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(userData)
 	if err != nil {
 		t.errorHandler.setError(w, err)
@@ -298,7 +298,7 @@ func (t *Transport) handlerAuthHistory(w http.ResponseWriter, r *http.Request) {
 		response.Items = nil
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
 		t.errorHandler.setError(w, err)

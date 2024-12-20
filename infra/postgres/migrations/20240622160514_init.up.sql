@@ -6,7 +6,6 @@ CREATE TABLE users
     email         VARCHAR(32) UNIQUE NOT NULL CHECK ( email ~ '^.+@.+\..+$' ),
     password      BYTEA              NOT NULL CHECK ( length(password) <= 60 ),
     "telegramId"  BIGINT UNIQUE,
-    "isActivated" BOOLEAN            NOT NULL DEFAULT FALSE,
     "createdAt"   TIMESTAMP          NOT NULL DEFAULT current_timestamp
 );
 
