@@ -35,9 +35,11 @@ func (t *Transport) routes() http.Handler {
 	mux.HandleFunc("POST /v1/auth/sign-in/2fa", signIn2FaMiddlewareGroup.Apply(t.handlerSignIn2FA))
 	mux.HandleFunc("POST /v1/auth/refresh", defaultMiddlewareGroup.Apply(t.handlerRefresh))
 
+	//TODO: TEST TELEGRAM
 	mux.HandleFunc("POST /v1/telegram", userMiddlewareGroup.Apply(t.handlerTelegramBind))
 	mux.HandleFunc("DELETE /v1/telegram", userMiddlewareGroup.Apply(t.handlerTelegramDelete))
 
+	//TODO: add route to add personal info
 	mux.HandleFunc("GET /v1/me/personal-data", userMiddlewareGroup.Apply(t.handlerGetUserPersonalData))
 	mux.HandleFunc("GET /v1/me", userMiddlewareGroup.Apply(t.handlerGetUserData))
 	mux.HandleFunc("GET /v1/me/auth-history", userMiddlewareGroup.Apply(t.handlerAuthHistory))

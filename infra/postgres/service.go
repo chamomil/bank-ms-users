@@ -77,7 +77,7 @@ func (s *Service) CreateUser(ctx context.Context, login, email string, passwordH
 func (s *Service) GetSignInDataByLogin(ctx context.Context, login string) (web.UserDataToSignIn, error) {
 	var userData web.UserDataToSignIn
 
-	const query = `SELECT users.id, users.password, users."telegramId", users."isActivated", users_personal_data.id IS NOT NULL as "hasPersonalData"
+	const query = `SELECT users.id, users.password, users."telegramId", users_personal_data.id IS NOT NULL as "hasPersonalData"
 				   FROM users
 				   LEFT JOIN users_personal_data USING (id) 
 				   WHERE users.login = @login`
@@ -92,7 +92,7 @@ func (s *Service) GetSignInDataByLogin(ctx context.Context, login string) (web.U
 		return web.UserDataToSignIn{}, s.wrapQueryError(err)
 	}
 
-	if err := row.Scan(&userData.Id, &userData.PasswordHash, &userData.TelegramId, &userData.IsActivated, &userData.HasPersonalData); err != nil {
+	if err := row.Scan(&userData.Id, &userData.PasswordHash, &userData.TelegramId, &userData.HasPersonalData); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return web.UserDataToSignIn{}, cerrors.NewErrorWithUserMessage(ercodes.InvalidLoginOrPassword, err, "Неверный логин пароль")
 		}
@@ -105,7 +105,7 @@ func (s *Service) GetSignInDataByLogin(ctx context.Context, login string) (web.U
 func (s *Service) GetSignInDataById(ctx context.Context, id int64) (web.UserDataToSignIn, error) {
 	var userData web.UserDataToSignIn
 
-	const query = `SELECT users.id, users.password, users."telegramId", users."isActivated", users_personal_data.id IS NOT NULL as "hasUsersPersonalData" FROM users LEFT JOIN users_personal_data USING (id) WHERE id = @id`
+	const query = `SELECT users.id, users.password, users."telegramId", users_personal_data.id IS NOT NULL as "hasUsersPersonalData" FROM users LEFT JOIN users_personal_data USING (id) WHERE id = @id`
 
 	row := s.db.QueryRowContext(ctx, query,
 		pgx.NamedArgs{
@@ -113,7 +113,7 @@ func (s *Service) GetSignInDataById(ctx context.Context, id int64) (web.UserData
 		},
 	)
 
-	if err := row.Scan(&userData.Id, &userData.PasswordHash, &userData.TelegramId, &userData.IsActivated, &userData.HasPersonalData); err != nil {
+	if err := row.Scan(&userData.Id, &userData.PasswordHash, &userData.TelegramId, &userData.HasPersonalData); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return web.UserDataToSignIn{}, s.wrapQueryError(err)
 		}
@@ -121,22 +121,6 @@ func (s *Service) GetSignInDataById(ctx context.Context, id int64) (web.UserData
 	}
 
 	return userData, nil
-}
-
-func (s *Service) ActivateUser(ctx context.Context, userId int64) error {
-	const query = `UPDATE users SET "isActivated" = true WHERE id = @id`
-
-	_, err := s.db.ExecContext(ctx, query,
-		pgx.NamedArgs{
-			"id": userId,
-		},
-	)
-
-	if err != nil {
-		return s.wrapQueryError(err)
-	}
-
-	return nil
 }
 
 func (s *Service) UserIdByLoginAndEmail(ctx context.Context, login, email string) (int64, error) {
@@ -217,7 +201,7 @@ func (s *Service) GetUserPersonalDataById(ctx context.Context, userId int64) (*w
 }
 
 func (s *Service) DeleteUsersWithExpiredActivation(ctx context.Context, expirationTime time.Duration) error {
-	_, err := s.db.ExecContext(ctx, `DELETE FROM users WHERE "isActivated" = false AND "createdAt" < $1`, time.Now().Add(-expirationTime))
+	_, err := s.db.ExecContext(ctx, `DELETE FROM users WHERE "createdAt" < $1`, time.Now().Add(-expirationTime))
 
 	if err != nil {
 		return s.wrapQueryError(err)

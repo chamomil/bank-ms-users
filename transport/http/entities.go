@@ -26,15 +26,6 @@ type (
 		Code string `json:"code"`
 	}
 
-	RecoveryRequest struct {
-		Login string `json:"login"`
-		Email string `json:"email"`
-	}
-
-	RecoveryCodeRequest struct {
-		Password string `json:"password"`
-	}
-
 	RefreshRequest struct {
 		RefreshToken string `json:"refreshToken"`
 	}

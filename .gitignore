@@ -1,2 +1,5 @@
 .idea
 config.json
+privatekey.pem
+publickey.pem
+docker-compose.yml

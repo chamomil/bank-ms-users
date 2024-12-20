@@ -11,10 +11,8 @@ const (
 	RandomGeneration
 	HS512Authorization
 	RS256Authorization
-	AccountNotActivated
 	WrongPassword
 	Invalid2FACode
-	GmailSendError
 	LoginAlreadyTaken
 	EmailAlreadyTaken
 	PostgresQuery
