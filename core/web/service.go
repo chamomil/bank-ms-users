@@ -271,6 +271,13 @@ func (s *Service) GetUserPersonalData(ctx context.Context, userId int64) (*UserP
 }
 
 func (s *Service) AddUserPersonalData(ctx context.Context, userId int64, data entity.UserPersonalData) error {
+	exist, err := s.GetUserPersonalData(ctx, userId)
+	if err != nil {
+		return err
+	}
+	if exist != nil {
+		return s.userStorage.UpdateUserPersonalDataById(ctx, userId, data)
+	}
 	return s.userStorage.AddUserPersonalDataById(ctx, userId, data)
 }
 

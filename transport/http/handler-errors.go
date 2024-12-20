@@ -29,6 +29,7 @@ func errorMessage(err error) string {
 }
 
 func (h *errorHandler) setTransportError(w http.ResponseWriter, transportError TransportError, statusCode int) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 	_ = json.NewEncoder(w).Encode(&transportError)
 }
@@ -81,6 +82,7 @@ func (h *errorHandler) setUnauthorizedError(w http.ResponseWriter, err error) {
 
 func (h *errorHandler) setUnprocessableEntityError(w http.ResponseWriter, ve validationErrors) {
 	w.WriteHeader(http.StatusUnprocessableEntity)
+	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(&ve)
 }
 

@@ -285,3 +285,27 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
 
 	return nil
 }
+
+func (s *Service) UpdateUserPersonalDataById(_ context.Context, userId int64, data entity.UserPersonalData) error {
+	const query = `
+UPDATE users_personal_data 
+SET "phoneNumber" = $1, 
+    "firstName" = $2, 
+    "lastName" = $3, 
+    "fathersName" = $4, 
+    "dateOfBirth" = $5, 
+    "passportId" = $6, 
+    address = $7, 
+    gender = $8, 
+    "liveInCountry" = $9
+WHERE id = $10`
+
+	_, err := s.db.Exec(query, data.PhoneNumber, data.FirstName, data.LastName, data.FathersName, data.DateOfBirth,
+		data.PassportId, data.Address, data.Gender, data.LiveInCountryId, userId)
+
+	if err != nil {
+		return s.wrapQueryError(err)
+	}
+
+	return nil
+}

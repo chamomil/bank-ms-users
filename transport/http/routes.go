@@ -40,7 +40,7 @@ func (t *Transport) routes() http.Handler {
 	mux.HandleFunc("DELETE /v1/telegram", userMiddlewareGroup.Apply(t.handlerTelegramDelete))
 
 	mux.HandleFunc("GET /v1/me/personal-data", userMiddlewareGroup.Apply(t.handlerGetUserPersonalData))
-	mux.HandleFunc("POST /v1/me/personal-data", userMiddlewareGroup.Apply(t.handlerAddUserPersonalData))
+	mux.HandleFunc("PUT /v1/me/personal-data", userMiddlewareGroup.Apply(t.handlerAddUserPersonalData))
 	mux.HandleFunc("GET /v1/me", userMiddlewareGroup.Apply(t.handlerGetUserData))
 	mux.HandleFunc("GET /v1/me/auth-history", userMiddlewareGroup.Apply(t.handlerAuthHistory))
 
