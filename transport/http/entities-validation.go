@@ -54,30 +54,6 @@ func (u *UserDataToSignIn) validate() (ve validationErrors) {
 	return
 }
 
-func (u *RecoveryRequest) validate() (ve validationErrors) {
-	ve = make(validationErrors, 0, 2)
-
-	if !isValidLogin(u.Login) {
-		ve.Add("Неверный логин")
-	}
-
-	if !isValidEmail(u.Email) {
-		ve.Add("Неверный адрес электронной почты")
-	}
-
-	return
-}
-
-func (u *RecoveryCodeRequest) validate() (ve validationErrors) {
-	ve = make(validationErrors, 0, 1)
-
-	if len(u.Password) < 6 || len(u.Password) > 16 {
-		ve.Add("Неверный пароль")
-	}
-
-	return
-}
-
 func (u *TelegramBindRequest) validate() (ve validationErrors) {
 	ve = make(validationErrors, 0, 3)
 

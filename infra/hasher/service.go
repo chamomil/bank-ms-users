@@ -25,7 +25,7 @@ func (s *Service) HashPassword(_ context.Context, password []byte, cost int) ([]
 	return passwordHash, nil
 }
 
-func (s *Service) CompareHashAndPassword(ctx context.Context, password string, hashedPassword []byte) error {
+func (s *Service) CompareHashAndPassword(_ context.Context, password string, hashedPassword []byte) error {
 	err := bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
 	if err != nil {
 		return cerrors.NewErrorWithUserMessage(ercodes.WrongPassword, err, "Неверный логин или пароль")

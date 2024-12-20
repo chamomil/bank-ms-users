@@ -10,7 +10,6 @@ type (
 		Id              int64
 		PasswordHash    []byte
 		TelegramId      *int64
-		IsActivated     bool
 		HasPersonalData bool
 	}
 

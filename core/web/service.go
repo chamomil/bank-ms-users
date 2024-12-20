@@ -14,7 +14,6 @@ type (
 		userStorage           UserStorage
 		randomGenerator       RandomGenerator
 		activationCodeCache   ActivationCodeStorage
-		authNotifier          AuthNotifier
 		passwordHasher        PasswordHasher
 		refreshTokenStorage   RefreshTokenStorage
 		twoFactorCodeStorage  TwoFactorCodeStorage
@@ -27,7 +26,6 @@ func NewService(
 	userStorage UserStorage,
 	randomGenerator RandomGenerator,
 	activationCodeCache ActivationCodeStorage,
-	activationCodeNotifier AuthNotifier,
 	passwordHasher PasswordHasher,
 	refreshTokenStorage RefreshTokenStorage,
 	twoFactorCodeStorage TwoFactorCodeStorage,
@@ -38,7 +36,6 @@ func NewService(
 		userStorage:           userStorage,
 		randomGenerator:       randomGenerator,
 		activationCodeCache:   activationCodeCache,
-		authNotifier:          activationCodeNotifier,
 		passwordHasher:        passwordHasher,
 		refreshTokenStorage:   refreshTokenStorage,
 		twoFactorCodeStorage:  twoFactorCodeStorage,
@@ -48,10 +45,6 @@ func NewService(
 }
 
 const (
-	emailCodeLength  = 10
-	emailCodeCharset = "0123456789"
-	emailCodeTtl     = time.Hour * 24
-
 	hashCost = 10
 
 	claimsTtl = time.Minute * 5
@@ -82,19 +75,6 @@ func (s *Service) SignUp(ctx context.Context, login, password, email string) err
 	return err
 }
 
-func (s *Service) ActivateAccount(ctx context.Context, code string) error {
-	userId, err := s.activationCodeCache.VerifyActivationCode(ctx, code)
-	if err != nil {
-		return err
-	}
-	err = s.userStorage.ActivateUser(ctx, userId)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (s *Service) SignIn(ctx context.Context, login, password, agent, ip string) (SignInResult, error) {
 	userData, err := s.userStorage.GetSignInDataByLogin(ctx, login)
 	if err != nil {
@@ -104,10 +84,6 @@ func (s *Service) SignIn(ctx context.Context, login, password, agent, ip string)
 	err = s.passwordHasher.CompareHashAndPassword(ctx, password, userData.PasswordHash)
 	if err != nil {
 		return SignInResult{}, err
-	}
-
-	if !userData.IsActivated {
-		return SignInResult{}, cerrors.NewErrorWithUserMessage(ercodes.AccountNotActivated, nil, "Аккаунт не активирован")
 	}
 
 	var refreshToken string
@@ -208,11 +184,6 @@ func (s *Service) Recovery(ctx context.Context, login, email string) error {
 	}
 
 	err = s.recoveryCodeStorage.SaveRecoveryCode(ctx, recoveryCode, userId, recoveryCodeTtl)
-	if err != nil {
-		return err
-	}
-
-	err = s.authNotifier.SendRecoveryCode(ctx, email, recoveryCode)
 	if err != nil {
 		return err
 	}

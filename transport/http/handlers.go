@@ -31,17 +31,6 @@ func (t *Transport) handlerSignUp(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (t *Transport) handlerActivateAccount(w http.ResponseWriter, r *http.Request) {
-	code := r.URL.Query().Get("code")
-	err := t.service.ActivateAccount(r.Context(), code)
-	if err != nil {
-		t.errorHandler.setError(w, err)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-}
-
 func (t *Transport) handlerSignIn(w http.ResponseWriter, r *http.Request) {
 	userDataToSignIn := UserDataToSignIn{}
 	if err := json.NewDecoder(r.Body).Decode(&userDataToSignIn); err != nil {
@@ -126,50 +115,6 @@ func (t *Transport) handlerSignIn2FA(w http.ResponseWriter, r *http.Request) {
 		t.errorHandler.setError(w, err)
 		return
 	}
-}
-
-func (t *Transport) handlerRecovery(w http.ResponseWriter, r *http.Request) {
-	var request RecoveryRequest
-	err := json.NewDecoder(r.Body).Decode(&request)
-	if err != nil {
-		t.errorHandler.setBadRequestError(w, err)
-		return
-	}
-
-	if !t.validate(w, &request) {
-		return
-	}
-
-	err = t.service.Recovery(r.Context(), request.Login, request.Email)
-	if err != nil {
-		t.errorHandler.setError(w, err)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-}
-
-func (t *Transport) handlerRecoveryCode(w http.ResponseWriter, r *http.Request) {
-	var request RecoveryCodeRequest
-	err := json.NewDecoder(r.Body).Decode(&request)
-	if err != nil {
-		t.errorHandler.setBadRequestError(w, err)
-		return
-	}
-
-	if !t.validate(w, &request) {
-		return
-	}
-
-	code := r.PathValue("code")
-
-	err = t.service.RecoveryCode(r.Context(), code, request.Password)
-	if err != nil {
-		t.errorHandler.setError(w, err)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
 }
 
 func (t *Transport) handlerRefresh(w http.ResponseWriter, r *http.Request) {
@@ -337,7 +282,7 @@ func (t *Transport) handlerAuthHistory(w http.ResponseWriter, r *http.Request) {
 		t.errorHandler.setError(w, err)
 		return
 	}
-	
+
 	var response UserAuthHistoryResponse
 	if authHistory != nil {
 		for _, entry := range authHistory {
