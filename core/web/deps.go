@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"time"
+	"x-bank-users/entity"
 )
 
 type (
@@ -14,6 +15,7 @@ type (
 		UpdatePassword(ctx context.Context, id int64, passwordHash []byte) error
 		UpdateTelegramId(ctx context.Context, telegramId *int64, userId int64) error
 		GetUserPersonalDataById(ctx context.Context, userId int64) (*UserPersonalData, error)
+		AddUserPersonalDataById(ctx context.Context, userId int64, data entity.UserPersonalData) error
 		GetUserDataById(ctx context.Context, id int64) (UserData, error)
 		AddUsersAuthHistory(ctx context.Context, userId int64, agent, ip string) error
 		GetUserAuthHistory(ctx context.Context, userId int64) ([]UserAuthHistoryData, error)

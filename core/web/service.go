@@ -6,6 +6,7 @@ import (
 	"time"
 	"x-bank-users/auth"
 	"x-bank-users/cerrors"
+	"x-bank-users/entity"
 	"x-bank-users/ercodes"
 )
 
@@ -267,6 +268,10 @@ func (s *Service) DeleteTelegram(ctx context.Context, userId int64) error {
 
 func (s *Service) GetUserPersonalData(ctx context.Context, userId int64) (*UserPersonalData, error) {
 	return s.userStorage.GetUserPersonalDataById(ctx, userId)
+}
+
+func (s *Service) AddUserPersonalData(ctx context.Context, userId int64, data entity.UserPersonalData) error {
+	return s.userStorage.AddUserPersonalDataById(ctx, userId, data)
 }
 
 func (s *Service) GetUserData(ctx context.Context, userId int64) (UserData, error) {

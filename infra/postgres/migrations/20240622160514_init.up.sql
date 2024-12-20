@@ -28,7 +28,7 @@ CREATE TABLE countries
 CREATE TABLE users_personal_data
 (
     id              BIGINT PRIMARY KEY REFERENCES users (id),
-    "phoneNumber"   CHAR(16)                               NOT NULL CHECK ("phoneNumber" ~ '^+[1-9][0-9]{1,14}$'),
+    "phoneNumber"   CHAR(16)                               NOT NULL,
     "firstName"     VARCHAR(64)                            NOT NULL,
     "lastName"      VARCHAR(64)                            NOT NULL,
     "fathersName"   VARCHAR(64),

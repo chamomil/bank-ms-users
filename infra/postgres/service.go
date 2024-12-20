@@ -11,6 +11,7 @@ import (
 	"time"
 	"x-bank-users/cerrors"
 	"x-bank-users/core/web"
+	"x-bank-users/entity"
 	"x-bank-users/ercodes"
 )
 
@@ -267,4 +268,20 @@ func (s *Service) GetUserAuthHistory(ctx context.Context, userId int64) ([]web.U
 	}
 
 	return userAuthHistoryData, nil
+}
+
+func (s *Service) AddUserPersonalDataById(_ context.Context, userId int64, data entity.UserPersonalData) error {
+	const query = `
+INSERT INTO users_personal_data 
+    (id, "phoneNumber", "firstName", "lastName", "fathersName", "dateOfBirth", "passportId", address, gender, "liveInCountry") 
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+
+	_, err := s.db.Exec(query, userId, data.PhoneNumber, data.FirstName, data.LastName, data.FathersName, data.DateOfBirth,
+		data.PassportId, data.Address, data.Gender, data.LiveInCountryId)
+
+	if err != nil {
+		return s.wrapQueryError(err)
+	}
+
+	return nil
 }

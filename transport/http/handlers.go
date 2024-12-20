@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"x-bank-users/auth"
+	"x-bank-users/entity"
 )
 
 func (t *Transport) handlerNotFound(w http.ResponseWriter, _ *http.Request) {
@@ -65,7 +66,7 @@ func (t *Transport) handlerSignIn(w http.ResponseWriter, r *http.Request) {
 		signInResponse.Tokens.RefreshToken = signInResult.RefreshToken
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(signInResponse)
 	if err != nil {
 		t.errorHandler.setError(w, err)
@@ -186,12 +187,38 @@ func (t *Transport) handlerGetUserPersonalData(w http.ResponseWriter, r *http.Re
 	} else {
 		response.PersonalData = nil
 	}
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(response)
 	if err != nil {
 		t.errorHandler.setError(w, err)
 		return
 	}
+}
+
+func (t *Transport) handlerAddUserPersonalData(w http.ResponseWriter, r *http.Request) {
+	var userData entity.UserPersonalData
+	err := json.NewDecoder(r.Body).Decode(&userData)
+	if err != nil {
+		t.errorHandler.setBadRequestError(w, err)
+		return
+	}
+
+	//TODO: ADD VALIDATION
+	claims, ok := r.Context().Value(t.claimsCtxKey).(*auth.Claims)
+	if !ok {
+		t.errorHandler.setError(w, errors.New("отсутствуют claims в контексте"))
+		return
+	}
+
+	userId := claims.Sub
+
+	err = t.service.AddUserPersonalData(r.Context(), userId, userData)
+	if err != nil {
+		t.errorHandler.setError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (t *Transport) handlerGetUserData(w http.ResponseWriter, r *http.Request) {
