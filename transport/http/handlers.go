@@ -203,7 +203,6 @@ func (t *Transport) handlerAddUserPersonalData(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	//TODO: ADD VALIDATION
 	claims, ok := r.Context().Value(t.claimsCtxKey).(*auth.Claims)
 	if !ok {
 		t.errorHandler.setError(w, errors.New("отсутствуют claims в контексте"))
@@ -331,4 +330,47 @@ func (t *Transport) handlerAuthHistory(w http.ResponseWriter, r *http.Request) {
 		t.errorHandler.setError(w, err)
 		return
 	}
+}
+
+func (t *Transport) handlerGetWorkplaces(w http.ResponseWriter, r *http.Request) {
+	claims, ok := r.Context().Value(t.claimsCtxKey).(*auth.Claims)
+	if !ok {
+		t.errorHandler.setError(w, errors.New("отсутствуют claims в контексте"))
+		return
+	}
+
+	userId := claims.Sub
+
+	resp, err := t.service.GetWorkplaces(r.Context(), userId)
+	if err != nil {
+		t.errorHandler.setError(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func (t *Transport) handlerAddWorkplace(w http.ResponseWriter, r *http.Request) {
+	var request entity.Workplace
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		t.errorHandler.setBadRequestError(w, err)
+		return
+	}
+	claims, ok := r.Context().Value(t.claimsCtxKey).(*auth.Claims)
+	if !ok {
+		t.errorHandler.setError(w, errors.New("отсутствуют claims в контексте"))
+		return
+	}
+
+	userId := claims.Sub
+
+	err = t.service.AddWorkplace(r.Context(), userId, request)
+	if err != nil {
+		t.errorHandler.setError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

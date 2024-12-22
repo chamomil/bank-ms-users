@@ -288,3 +288,11 @@ func (s *Service) GetUserData(ctx context.Context, userId int64) (UserData, erro
 func (s *Service) GetAuthHistory(ctx context.Context, userId int64) ([]UserAuthHistoryData, error) {
 	return s.userStorage.GetUserAuthHistory(ctx, userId)
 }
+
+func (s *Service) GetWorkplaces(ctx context.Context, userId int64) ([]entity.UserWorkplace, error) {
+	return s.userStorage.GetUserWorkplaces(ctx, userId)
+}
+
+func (s *Service) AddWorkplace(ctx context.Context, userId int64, work entity.Workplace) error {
+	return s.userStorage.AddUserWorkplace(ctx, userId, work)
+}
