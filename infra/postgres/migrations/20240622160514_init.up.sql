@@ -5,7 +5,6 @@ CREATE TABLE users
     login         VARCHAR(32) UNIQUE NOT NULL CHECK ( login ~ '^[a-z0-9_-]+$'),
     email         VARCHAR(32) UNIQUE NOT NULL CHECK ( email ~ '^.+@.+\..+$' ),
     password      BYTEA              NOT NULL CHECK ( length(password) <= 60 ),
-    "telegramId"  BIGINT UNIQUE,
     "createdAt"   TIMESTAMP          NOT NULL DEFAULT current_timestamp
 );
 

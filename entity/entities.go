@@ -12,4 +12,20 @@ type (
 		Gender          string  `json:"gender"`
 		LiveInCountryId int64   `json:"liveInCountry"`
 	}
+
+	UserWorkplace struct {
+		CompanyName    string `json:"companyName"`
+		CompanyAddress string `json:"companyAddress"`
+		Position       string `json:"position"`
+		StartDate      int64  `json:"startDate"`
+		EndDate        *int64 `json:"endDate"`
+	}
+
+	Workplace struct {
+		CompanyName    string  `json:"companyName"`
+		CompanyAddress string  `json:"companyAddress"`
+		Position       string  `json:"position"`
+		StartDate      string  `json:"startDate"`
+		EndDate        *string `json:"endDate"`
+	}
 )

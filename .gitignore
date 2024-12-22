@@ -1,5 +1,5 @@
 .idea
 config.json
-privatekey.pem
-publickey.pem
+private.pem
+public.pem
 docker-compose.yml

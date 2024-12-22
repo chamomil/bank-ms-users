@@ -20,6 +20,8 @@ type (
 		GetUserDataById(ctx context.Context, id int64) (UserData, error)
 		AddUsersAuthHistory(ctx context.Context, userId int64, agent, ip string) error
 		GetUserAuthHistory(ctx context.Context, userId int64) ([]UserAuthHistoryData, error)
+		GetUserWorkplaces(ctx context.Context, userId int64) ([]entity.UserWorkplace, error)
+		AddUserWorkplace(ctx context.Context, userId int64, work entity.Workplace) error
 	}
 
 	RandomGenerator interface {

@@ -309,3 +309,63 @@ WHERE id = $10`
 
 	return nil
 }
+
+func (s *Service) GetUserWorkplaces(ctx context.Context, userId int64) ([]entity.UserWorkplace, error) {
+	const query = `
+SELECT w.name, w.address, e.position, e."startDate", e."endDate"
+FROM users_employments e
+JOIN workplaces w ON e."workplaceId" = w.id
+WHERE "userId" = $1 
+ORDER BY e."startDate" DESC `
+
+	rows, err := s.db.QueryContext(ctx, query, userId)
+
+	if err != nil {
+		return nil, s.wrapQueryError(err)
+	}
+
+	var wps []entity.UserWorkplace
+	for rows.Next() {
+		var wp entity.UserWorkplace
+		var start time.Time
+		var end *time.Time
+		if err = rows.Scan(&wp.CompanyName, &wp.CompanyAddress, &wp.Position, &start, &end); err != nil {
+			return nil, s.wrapScanError(err)
+		}
+		wp.StartDate = start.Unix()
+		if end != nil {
+			var tmp = end.Unix()
+			wp.EndDate = &tmp
+		}
+		wps = append(wps, wp)
+	}
+
+	return wps, nil
+}
+
+func (s *Service) AddUserWorkplace(ctx context.Context, userId int64, work entity.Workplace) error {
+	const queryWork = `
+SELECT id FROM workplaces WHERE name = $1
+`
+	var workId int64
+	err := s.db.QueryRowContext(ctx, queryWork, work.CompanyName).Scan(&workId)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return s.wrapQueryError(err)
+	}
+
+	const queryAddWork = `INSERT INTO workplaces (name, address) VALUES ($1, $2)`
+	if workId == 0 {
+		_, err = s.db.Exec(queryAddWork, work.CompanyName, work.CompanyAddress)
+		if err != nil {
+			return err
+		}
+	}
+
+	const query = `INSERT INTO users_employments ("userId", "workplaceId", position, "startDate", "endDate") VALUES ($1, $2, $3, $4, $5)`
+
+	_, err = s.db.Exec(query, userId, workId, work.Position, work.StartDate, work.EndDate)
+	if err != nil {
+		return s.wrapQueryError(err)
+	}
+	return nil
+}
