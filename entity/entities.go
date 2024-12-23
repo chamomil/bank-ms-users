@@ -28,4 +28,9 @@ type (
 		StartDate      string  `json:"startDate"`
 		EndDate        *string `json:"endDate"`
 	}
+
+	Country struct {
+		Id   int64  `json:"id"`
+		Name string `json:"name"`
+	}
 )

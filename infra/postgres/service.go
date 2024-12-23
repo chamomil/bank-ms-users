@@ -78,7 +78,7 @@ func (s *Service) CreateUser(ctx context.Context, login, email string, passwordH
 func (s *Service) GetSignInDataByLogin(ctx context.Context, login string) (web.UserDataToSignIn, error) {
 	var userData web.UserDataToSignIn
 
-	const query = `SELECT users.id, users.password, users."telegramId", users_personal_data.id IS NOT NULL as "hasPersonalData"
+	const query = `SELECT users.id, users.password, users_personal_data.id IS NOT NULL as "hasPersonalData"
 				   FROM users
 				   LEFT JOIN users_personal_data USING (id) 
 				   WHERE users.login = @login`
@@ -93,7 +93,7 @@ func (s *Service) GetSignInDataByLogin(ctx context.Context, login string) (web.U
 		return web.UserDataToSignIn{}, s.wrapQueryError(err)
 	}
 
-	if err := row.Scan(&userData.Id, &userData.PasswordHash, &userData.TelegramId, &userData.HasPersonalData); err != nil {
+	if err := row.Scan(&userData.Id, &userData.PasswordHash, &userData.HasPersonalData); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return web.UserDataToSignIn{}, cerrors.NewErrorWithUserMessage(ercodes.InvalidLoginOrPassword, err, "Неверный логин пароль")
 		}
@@ -106,7 +106,7 @@ func (s *Service) GetSignInDataByLogin(ctx context.Context, login string) (web.U
 func (s *Service) GetSignInDataById(ctx context.Context, id int64) (web.UserDataToSignIn, error) {
 	var userData web.UserDataToSignIn
 
-	const query = `SELECT users.id, users.password, users."telegramId", users_personal_data.id IS NOT NULL as "hasUsersPersonalData" FROM users LEFT JOIN users_personal_data USING (id) WHERE id = @id`
+	const query = `SELECT users.id, users.password, users_personal_data.id IS NOT NULL as "hasUsersPersonalData" FROM users LEFT JOIN users_personal_data USING (id) WHERE id = @id`
 
 	row := s.db.QueryRowContext(ctx, query,
 		pgx.NamedArgs{
@@ -114,7 +114,7 @@ func (s *Service) GetSignInDataById(ctx context.Context, id int64) (web.UserData
 		},
 	)
 
-	if err := row.Scan(&userData.Id, &userData.PasswordHash, &userData.TelegramId, &userData.HasPersonalData); err != nil {
+	if err := row.Scan(&userData.Id, &userData.PasswordHash, &userData.HasPersonalData); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return web.UserDataToSignIn{}, s.wrapQueryError(err)
 		}
@@ -212,7 +212,7 @@ func (s *Service) DeleteUsersWithExpiredActivation(ctx context.Context, expirati
 }
 
 func (s *Service) GetUserDataById(ctx context.Context, id int64) (web.UserData, error) {
-	const query = `SELECT id, uuid, login, email, "telegramId", "createdAt" FROM users WHERE id = @id`
+	const query = `SELECT id, login, email, "createdAt" FROM users WHERE id = @id`
 
 	row := s.db.QueryRowContext(ctx, query, pgx.NamedArgs{
 		"id": id,
@@ -224,7 +224,7 @@ func (s *Service) GetUserDataById(ctx context.Context, id int64) (web.UserData, 
 	}
 
 	var userData web.UserData
-	err := row.Scan(&userData.Id, &userData.UUID, &userData.Login, &userData.Email, &userData.TelegramId, &userData.CreatedAt)
+	err := row.Scan(&userData.Id, &userData.Login, &userData.Email, &userData.CreatedAt)
 	if err != nil {
 		return web.UserData{}, s.wrapScanError(err)
 	}
@@ -368,4 +368,22 @@ SELECT id FROM workplaces WHERE name = $1
 		return s.wrapQueryError(err)
 	}
 	return nil
+}
+
+func (s *Service) GetCountries(_ context.Context) ([]entity.Country, error) {
+	const query = `SELECT id, name FROM countries`
+	res := make([]entity.Country, 0)
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, s.wrapQueryError(err)
+	}
+	for rows.Next() {
+		var c entity.Country
+		err = rows.Scan(&c.Id, &c.Name)
+		if err != nil {
+			return nil, s.wrapScanError(err)
+		}
+		res = append(res, c)
+	}
+	return res, nil
 }

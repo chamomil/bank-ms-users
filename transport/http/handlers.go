@@ -238,12 +238,10 @@ func (t *Transport) handlerGetUserData(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userData = UserDataResponse{
-		Id:         data.Id,
-		UUID:       data.UUID,
-		Login:      data.Login,
-		Email:      data.Email,
-		TelegramId: data.TelegramId,
-		CreatedAt:  data.CreatedAt.Format("2006-01-02"),
+		Id:        data.Id,
+		Login:     data.Login,
+		Email:     data.Email,
+		CreatedAt: data.CreatedAt.Format("2006-01-02"),
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -373,4 +371,14 @@ func (t *Transport) handlerAddWorkplace(w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (t *Transport) handlerGetCountries(w http.ResponseWriter, r *http.Request) {
+	countries, err := t.service.GetCountries(r.Context())
+	if err != nil {
+		t.errorHandler.setError(w, err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(countries)
 }

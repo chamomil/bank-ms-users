@@ -22,6 +22,7 @@ type (
 		GetUserAuthHistory(ctx context.Context, userId int64) ([]UserAuthHistoryData, error)
 		GetUserWorkplaces(ctx context.Context, userId int64) ([]entity.UserWorkplace, error)
 		AddUserWorkplace(ctx context.Context, userId int64, work entity.Workplace) error
+		GetCountries(ctx context.Context) ([]entity.Country, error)
 	}
 
 	RandomGenerator interface {

@@ -9,7 +9,6 @@ type (
 	UserDataToSignIn struct {
 		Id              int64
 		PasswordHash    []byte
-		TelegramId      *int64
 		HasPersonalData bool
 	}
 
@@ -45,12 +44,10 @@ type (
 	}
 
 	UserData struct {
-		Id         int64
-		UUID       string
-		Login      string
-		Email      string
-		TelegramId *int64
-		CreatedAt  time.Time
+		Id        int64
+		Login     string
+		Email     string
+		CreatedAt time.Time
 	}
 
 	UserAuthHistoryData struct {

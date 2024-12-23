@@ -88,26 +88,13 @@ func (s *Service) SignIn(ctx context.Context, login, password, agent, ip string)
 	}
 
 	var refreshToken string
-	if userData.TelegramId == nil {
-		refreshToken, err = s.getNewToken(ctx, userData.Id)
-		if err != nil {
-			return SignInResult{}, err
-		}
+	refreshToken, err = s.getNewToken(ctx, userData.Id)
+	if err != nil {
+		return SignInResult{}, err
+	}
 
-		if err = s.userStorage.AddUsersAuthHistory(ctx, userData.Id, agent, ip); err != nil {
-			return SignInResult{}, err
-		}
-	} else {
-		twoFactorCode, err := s.randomGenerator.GenerateString(ctx, twoFactorCodeCharset, twoFactorCodeSize)
-		if err != nil {
-			return SignInResult{}, err
-		}
-		if err = s.twoFactorCodeStorage.Save2FaCode(ctx, twoFactorCode, userData.Id, TwoFactorCodeTtl); err != nil {
-			return SignInResult{}, err
-		}
-		if err = s.twoFactorCodeNotifier.Send2FaCode(ctx, *userData.TelegramId, twoFactorCode); err != nil {
-			return SignInResult{}, err
-		}
+	if err = s.userStorage.AddUsersAuthHistory(ctx, userData.Id, agent, ip); err != nil {
+		return SignInResult{}, err
 	}
 	date := time.Now()
 
@@ -116,7 +103,7 @@ func (s *Service) SignIn(ctx context.Context, login, password, agent, ip string)
 		IssuedAt:        date.Unix(),
 		ExpiresAt:       date.Add(claimsTtl).Unix(),
 		Sub:             userData.Id,
-		Is2FAToken:      userData.TelegramId != nil,
+		Is2FAToken:      false,
 		HasPersonalData: userData.HasPersonalData,
 	}
 
@@ -295,4 +282,8 @@ func (s *Service) GetWorkplaces(ctx context.Context, userId int64) ([]entity.Use
 
 func (s *Service) AddWorkplace(ctx context.Context, userId int64, work entity.Workplace) error {
 	return s.userStorage.AddUserWorkplace(ctx, userId, work)
+}
+
+func (s *Service) GetCountries(ctx context.Context) ([]entity.Country, error) {
+	return s.userStorage.GetCountries(ctx)
 }

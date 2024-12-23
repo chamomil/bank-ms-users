@@ -57,12 +57,10 @@ type (
 	}
 
 	UserDataResponse struct {
-		Id         int64  `json:"id"`
-		UUID       string `json:"uuid"`
-		Login      string `json:"login"`
-		Email      string `json:"email"`
-		TelegramId *int64 `json:"telegramId"`
-		CreatedAt  string `json:"createdAt"`
+		Id        int64  `json:"id"`
+		Login     string `json:"login"`
+		Email     string `json:"email"`
+		CreatedAt string `json:"createdAt"`
 	}
 
 	UserAuthHistoryResponseItem struct {

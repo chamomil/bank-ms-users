@@ -1,11 +1,10 @@
 CREATE TABLE users
 (
-    id            BIGSERIAL PRIMARY KEY,
-    uuid          UUID UNIQUE        NOT NULL DEFAULT gen_random_uuid(),
-    login         VARCHAR(32) UNIQUE NOT NULL CHECK ( login ~ '^[a-z0-9_-]+$'),
-    email         VARCHAR(32) UNIQUE NOT NULL CHECK ( email ~ '^.+@.+\..+$' ),
-    password      BYTEA              NOT NULL CHECK ( length(password) <= 60 ),
-    "createdAt"   TIMESTAMP          NOT NULL DEFAULT current_timestamp
+    id          BIGSERIAL PRIMARY KEY,
+    login       VARCHAR(32) UNIQUE NOT NULL CHECK ( login ~ '^[a-z0-9_-]+$'),
+    email       VARCHAR(32) UNIQUE NOT NULL CHECK ( email ~ '^.+@.+\..+$' ),
+    password    BYTEA              NOT NULL CHECK ( length(password) <= 60 ),
+    "createdAt" TIMESTAMP          NOT NULL DEFAULT current_timestamp
 );
 
 CREATE TABLE users_auth_history
@@ -23,6 +22,8 @@ CREATE TABLE countries
     code CHAR(2) UNIQUE      NOT NULL,
     name VARCHAR(128) UNIQUE NOT NULL
 );
+
+INSERT INTO countries (code, name) VALUES ('BY', 'Беларусь'), ('RU', 'Россия');
 
 CREATE TABLE users_personal_data
 (
