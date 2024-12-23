@@ -353,17 +353,27 @@ SELECT id FROM workplaces WHERE name = $1
 		return s.wrapQueryError(err)
 	}
 
-	const queryAddWork = `INSERT INTO workplaces (name, address) VALUES ($1, $2)`
+	const queryAddWork = `INSERT INTO workplaces (name, address) VALUES ($1, $2) RETURNING id`
 	if workId == 0 {
-		_, err = s.db.Exec(queryAddWork, work.CompanyName, work.CompanyAddress)
+		err = s.db.QueryRow(queryAddWork, work.CompanyName, work.CompanyAddress).Scan(&workId)
 		if err != nil {
 			return err
 		}
 	}
 
-	const query = `INSERT INTO users_employments ("userId", "workplaceId", position, "startDate", "endDate") VALUES ($1, $2, $3, $4, $5)`
+	const lastWorkquery = `
+UPDATE users_employments 
+SET "endDate" = $1 
+WHERE "userId" = $2 AND "startDate" = (SELECT max("startDate") FROM users_employments WHERE "userId" = $2)`
 
-	_, err = s.db.Exec(query, userId, workId, work.Position, work.StartDate, work.EndDate)
+	_, err = s.db.Exec(lastWorkquery, work.EndDate, userId)
+	if err != nil {
+		return s.wrapQueryError(err)
+	}
+
+	const query = `INSERT INTO users_employments ("userId", "workplaceId", position, "startDate") VALUES ($1, $2, $3, $4)`
+
+	_, err = s.db.Exec(query, userId, workId, work.Position, work.StartDate)
 	if err != nil {
 		return s.wrapQueryError(err)
 	}
